@@ -160,6 +160,31 @@ def create_event(events)
   events.push(new_event)
 end
 
+def show_info_event(events, event_id)
+  events.each do |event|
+    if event[:id]==event_id
+      puts "date: #{DateTime.parse("#{event[:start_date]}").strftime("%F")}"
+      puts "title: #{event[:title]}"
+      puts "calendar: #{event[:calendar]}"
+      if event[:end_date]==""
+        puts "start_end: "
+      else
+        puts "start_end: #{DateTime.parse("#{event[:start_date]}").strftime("%H:%M")} #{DateTime.parse("#{event[:end_date]}").strftime("%H:%M")}"
+      end
+      puts "notes: #{event[:notes]}"
+      print "guests: "
+      event[:guests].each_with_index do |guest,pos|
+        if pos == event[:guests].size - 1
+          print "#{guest} "
+        else
+          print "#{guest}, "
+        end
+      end
+      puts " "
+    end
+  end
+end
+
 list_events(events)
 print_menu
 
@@ -176,6 +201,9 @@ while action != "exit"
     create_event(events)
   when "show"
     puts "show"
+    print "Event ID: "
+    event_id= gets.chomp.to_i
+    show_info_event(events, event_id)
   when "update"
     puts "update"
   when "delete"
