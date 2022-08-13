@@ -106,10 +106,13 @@ require "date"
 
 def list_events(events)
   puts "#{'-' * 30} Welcome to CalenCLI #{'-' * 30}\n\n"
-
+  
   events.each do |event|
     date = Date.parse("#{event[:start_date]}")
-    date_str = date.strftime('%a %b %d') 
+    day_str = date.strftime('%d').to_i
+    if day_str>=8 && day_str <= 14
+      date = Date.parse("#{event[:start_date]}")
+      date_str = date.strftime('%a %b %d') 
     
     time = DateTime.parse("#{event[:start_date]}")
     start_time = time.strftime('%H:%M')
@@ -123,6 +126,7 @@ def list_events(events)
       end_time = time_end.strftime('%H:%M')
       puts "#{date_str} #{start_time} - #{end_time} #{event[:title]} (#{event[:id]})"
     end
+   end
   end
 end
 
@@ -149,6 +153,7 @@ def create_event(events)
   end
   print "calendar: "
   new_calendar = gets.chomp
+
   print "start_end: "
   new_start_end = gets.chomp
   while !new_start_end.include? " "
@@ -163,6 +168,7 @@ def create_event(events)
     new_start_end = gets.chomp
     start_end=new_start_end.split(" ")
   end
+
   print "notes: "
   new_notes = gets.chomp
   print "guests: "
@@ -198,6 +204,61 @@ def show_info_event(events, event_id)
   end
 end
 
+def update_info_event(events, id_update)
+  events.each do |event|
+    if event[:id] == id_update 
+      print "date: "
+      new_date = gets.chomp
+      while new_date==""
+        puts "Type a valid date: YYYY-MM-DD"
+        print "date: "
+        new_date = gets.chomp
+      end
+      print "title: "
+      new_title = gets.chomp
+      while new_title==""
+        puts "Cannot be blank"
+        print "title: "
+        new_title = gets.chomp
+      end
+      print "calendar: "
+      new_calendar = gets.chomp
+
+      print "start_end: "
+      new_start_end = gets.chomp
+      while !new_start_end.include? " "
+        puts "'HH:MM HH:MM'or leave it empty"
+        print "start_end: "
+        new_start_end = gets.chomp
+      end
+      start_end=new_start_end.split(" ")
+      while start_end[0] > start_end[1]
+        puts "Cannot end before start"
+        print "start_end: "
+        new_start_end = gets.chomp
+        start_end=new_start_end.split(" ")
+      end
+
+      print "notes: "
+      new_notes = gets.chomp
+      print "guests: "
+      new_guests = gets.chomp
+
+      start_date= DateTime.parse("#{new_date} #{start_end[0]}").strftime('%FT%T%:z')
+      end_date= DateTime.parse("#{new_date} #{start_end[1]}").strftime('%FT%T%:z')
+      guests=new_guests.split(",")
+      event.merge!({id: id_update, start_date: start_date, title: new_title, end_date: end_date,notes:new_notes, guests:guests})
+    end
+  end
+end
+
+def delete_event(events, delete_event_id)
+  events.delete_if do |event|
+    # delete_event_id.include?(event[:id])
+    delete_event_id == event[:id]
+  end
+end
+# Main Program
 list_events(events)
 print_menu
 
@@ -209,28 +270,44 @@ while action != "exit"
   case action
   when "list"
     puts "list"
+    list_events(events)
+    print_menu
+  
+
   when "create"
     puts "create"
     create_event(events)
+
   when "show"
     puts "show"
     print "Event ID: "
     event_id= gets.chomp.to_i
     show_info_event(events, event_id)
+    print_menu
+
   when "update"
     puts "update"
+    print "Event ID: "
+    id_update = gets.chomp.to_i
+    update_info_event(events, id_update)
+    print_menu
+    
   when "delete"
     puts "delete"
+    print "Event ID: "
+    delete_event_id = gets.chomp.to_i
+    delete_event(events, delete_event_id)
+    
   when "next"
-    puts "next"
+    puts "hola"
   when "prev"
     puts "prev"
   end
 end
 
-create_event(events)
-
-
-
-
-# Main Program
+action = nil
+while action == "exit"
+  print "action: "
+  action = gets.chomp
+end
+puts "Thanks for using calenCLI"
