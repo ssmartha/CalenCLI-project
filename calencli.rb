@@ -132,6 +132,59 @@ def print_menu
   puts "\n"
 end
 
+def create_event(events)
+  print "date: "
+  new_date = gets.chomp
+  print "title: "
+  new_title = gets.chomp
+  print "calendar: "
+  new_calendar = gets.chomp
+  print "start_end: "
+  new_start_end = gets.chomp
+  start_end=new_start_end.split(" ")
+  start_date= DateTime.parse("#{new_date} #{start_end[0]}")
+  start_date_with_format= start_date.strftime('%FT%T%:z')
+  end_date= DateTime.parse("#{new_date} #{start_end[1]}")
+  end_date_with_format= start_date.strftime('%FT%T%:z')
+  print "notes: "
+  new_notes = gets.chomp
+  new_event={}
+  new_event[:id]=new_date
+  new_event[:start_date]=start_date_with_format
+  new_event[:title]=new_title
+  new_event[:end_date]=end_date_with_format
+  new_event[:notes]=new_notes
+  new_event[:guests]=""
+  new_event[:calendar]=new_calendar
+  # new_event={:id=>(id=events[:id].next),:start_date=>start_date_with_format,:title=>new_title,:end_date=>end_date_with_format,:notes=>new_notes,:guests=>"",:calendar=>new_calendar}
+  events.push(new_event)
+end
+
+def show_info_event(events, event_id)
+  events.each do |event|
+    if event[:id]==event_id
+      puts "date: #{DateTime.parse("#{event[:start_date]}").strftime("%F")}"
+      puts "title: #{event[:title]}"
+      puts "calendar: #{event[:calendar]}"
+      if event[:end_date]==""
+        puts "start_end: "
+      else
+        puts "start_end: #{DateTime.parse("#{event[:start_date]}").strftime("%H:%M")} #{DateTime.parse("#{event[:end_date]}").strftime("%H:%M")}"
+      end
+      puts "notes: #{event[:notes]}"
+      print "guests: "
+      event[:guests].each_with_index do |guest,pos|
+        if pos == event[:guests].size - 1
+          print "#{guest} "
+        else
+          print "#{guest}, "
+        end
+      end
+      puts " "
+    end
+  end
+end
+
 list_events(events)
 print_menu
 
@@ -145,8 +198,12 @@ while action != "exit"
     puts "list"
   when "create"
     puts "create"
+    create_event(events)
   when "show"
     puts "show"
+    print "Event ID: "
+    event_id= gets.chomp.to_i
+    show_info_event(events, event_id)
   when "update"
     puts "update"
   when "delete"
@@ -157,6 +214,8 @@ while action != "exit"
     puts "prev"
   end
 end
+
+create_event(events)
 
 
 
